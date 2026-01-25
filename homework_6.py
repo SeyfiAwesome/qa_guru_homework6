@@ -10,9 +10,7 @@ def normalize_addresses(value: str) -> str:
 
 
 def add_short_body(email: dict) -> dict:
-    body = email['body']
-    short = body[0:10]
-    email['short_body'] = short + "..."
+    email['short_body'] = email['body'][0:10] = "..."
     return email
 
 
@@ -20,11 +18,10 @@ def add_short_body(email: dict) -> dict:
 
 
 def clean_body_text(body: str) -> str:
-    without_transfer = body.replace('\n', ' ')
-    clean_text = without_transfer.replace('\t', ' ')
-    while "  " in clean_text:
-        clean_text = clean_text.replace("  ", " ")
-    return clean_text
+    text = body.replace('\n', ' ').replace('\t', ' ')
+    while "  " in text:
+        clean_text = text.replace("  ", " ")
+    return text
 
 
 """Заменяет табы и переводы строк на пробелы. """
@@ -37,7 +34,9 @@ def build_sent_text(email: dict) -> str:
     date = email.get('date', '')
     body = email.get('short_body')
 
-    return f"Кому: {recipient}, от {sender}\nТема: {subject}, дата {date}\n{body}"
+    return f"""Кому: {recipient}, от {sender}
+    Тема: {subject}, дата {date}
+    {body}"""
 
 
 """Формирует текст письма в формате:
@@ -47,6 +46,11 @@ def build_sent_text(email: dict) -> str:
 
 
 def check_empty_fields(subject: str, body: str) -> tuple[bool, bool]:
+    """
+    Проверяет, пусты ли поля subject и body.
+    Возвращает кортеж (is_subject_empty, is_body_empty):
+        True, если соответствующее поле пустое, иначе False.
+    """
     is_subject_empty = subject.strip() == ""
     is_body_empty = body.strip() == ""
     return (is_subject_empty, is_body_empty)
@@ -112,7 +116,7 @@ def extract_login_domain(address: str) -> tuple[str, str]:
         domain = adress_parts[1]
         return (login, domain)
     else:
-        return (f"Wrond address name")
+        raise ValueError(f"Not a valid email address: {address}")
 
 
 '''Возвращает логин и домен отправителя. Пример: "user@mail.ru" -> ("user", "mail.ru")'''
@@ -165,8 +169,7 @@ def sender_email(recipient_list: list[str], subject: str, message: str, *, sende
         email_dict = add_send_date(email_dict)
 
         login, domain = extract_login_domain(email_dict['sender'])
-        masked_email = login[:2] + "***@" + domain
-        email_dict['masked_sender'] = masked_email
+        email_dict['masked_sender'] = mask_sender_email(login, domain)
 
         email_dict = add_short_body(email_dict)
 
