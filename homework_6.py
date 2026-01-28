@@ -10,7 +10,7 @@ def normalize_addresses(value: str) -> str:
 
 
 def add_short_body(email: dict) -> dict:
-    email['short_body'] = email['body'][0:10] = "..."
+    email['short_body'] = email['body'][:10] = "..."
     return email
 
 
@@ -20,7 +20,7 @@ def add_short_body(email: dict) -> dict:
 def clean_body_text(body: str) -> str:
     text = body.replace('\n', ' ').replace('\t', ' ')
     while "  " in text:
-        clean_text = text.replace("  ", " ")
+        text = text.replace("  ", " ")
     return text
 
 
@@ -31,11 +31,11 @@ def build_sent_text(email: dict) -> str:
     recipient = email.get('recipient', '')
     sender = email.get('sender', '')
     subject = email.get('subject', '')
-    date = email.get('date', '')
+    send_date = email.get('date', '')
     body = email.get('short_body')
 
     return f"""Кому: {recipient}, от {sender}
-    Тема: {subject}, дата {date}
+    Тема: {subject}, дата {send_date}
     {body}"""
 
 
@@ -53,14 +53,14 @@ def check_empty_fields(subject: str, body: str) -> tuple[bool, bool]:
     """
     is_subject_empty = subject.strip() == ""
     is_body_empty = body.strip() == ""
-    return (is_subject_empty, is_body_empty)
+    return is_subject_empty, is_body_empty
 
 
 '''Возвращает кортеж (is_subject_empty, is_body_empty). True, если поле пустое.'''
 
 
 def mask_sender_email(login: str, domain: str):
-    mask_form = login[0:2] + "**@" + domain
+    mask_form = login[:2] + "***@" + domain
     return mask_form
 
 
@@ -114,7 +114,7 @@ def extract_login_domain(address: str) -> tuple[str, str]:
     if len(adress_parts) == 2:
         login = adress_parts[0]
         domain = adress_parts[1]
-        return (login, domain)
+        return login, domain
     else:
         raise ValueError(f"Not a valid email address: {address}")
 
