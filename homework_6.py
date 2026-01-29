@@ -10,7 +10,7 @@ def normalize_addresses(value: str) -> str:
 
 
 def add_short_body(email: dict) -> dict:
-    email['short_body'] = email['body'][:10] = "..."
+    email['short_body'] = email['body'][:10] + "..."
     return email
 
 
